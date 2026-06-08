@@ -2,7 +2,7 @@
   "expo": {
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#06301c",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -15,6 +15,7 @@
       "typedRoutes": true
     },
     "extra": {
+      "apiOrigin": "https://stickers.expo.app",
       "eas": {
         "projectId": "e257b0d9-070e-4e97-8cd0-397c3b9338d8"
       },
@@ -29,6 +30,13 @@
     "owner": "steffbeckers",
     "plugins": [
       "expo-router",
+      "@react-native-google-signin/google-signin",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Stickerbook needs camera access to scan your sticker album pages."
+        }
+      ],
       [
         "expo-splash-screen",
         {
@@ -36,7 +44,7 @@
             "image": "./assets/images/splash-icon.png",
             "imageWidth": 76
           },
-          "backgroundColor": "#208AEF"
+          "backgroundColor": "#06301c"
         }
       ]
     ],
@@ -46,7 +54,7 @@
     "version": "1.0.0",
     "web": {
       "favicon": "./assets/images/favicon.png",
-      "output": "static"
+      "output": "server"
     }
   }
 }

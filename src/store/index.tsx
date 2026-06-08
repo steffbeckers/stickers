@@ -81,10 +81,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const userRef = useRef<User | null>(null);
   userRef.current = user;
 
-  useEffect(() => { saveRecent(recent); }, [recent]);
+  const recentLoadedRef = useRef(false);
+  useEffect(() => {
+    if (recentLoadedRef.current) {
+      saveRecent(recent);
+    }
+  }, [recent]);
 
   useEffect(() => {
-    loadRecent().then(setRecent);
+    loadRecent().then(r => {
+      recentLoadedRef.current = true;
+      setRecent(r);
+    });
     loadFav().then(setFavoriteTeamState);
   }, []);
 
@@ -98,8 +106,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             const fetched = await fetchCollection(u.id);
             setOwned(fetched);
           } catch (e) {
-            console.warn('Failed to load collection:', e);
-            setOwned(WC.seedOwned());
+            console.warn('Failed to load collection, starting empty:', e);
+            setOwned({});
           }
         } else {
           setOwned({});
@@ -162,23 +170,32 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     },
 
     applyScan: (nums) => {
-      const result = { added: [] as number[], dupes: [] as number[] };
-      const updates: { n: number; count: number }[] = [];
-      // Read current owned via ref to avoid stale closure
       const currentOwned = ownedRef.current;
+      const added: number[] = [];
+      const dupes: number[] = [];
+      const updates: { n: number; count: number }[] = [];
+
+      nums.forEach(n => {
+        const existing = currentOwned[n] ?? 0;
+        if (existing > 0) {
+          dupes.push(n);
+          updates.push({ n, count: existing + 1 });
+        } else {
+          added.push(n);
+          updates.push({ n, count: 1 });
+        }
+      });
+
       setOwned(o => {
         const next = { ...o };
-        nums.forEach(n => {
-          if (next[n]) { next[n] += 1; result.dupes.push(n); }
-          else { next[n] = 1; result.added.push(n); }
-          updates.push({ n, count: next[n] });
-        });
+        updates.forEach(({ n, count }) => { next[n] = count; });
         return next;
       });
-      pushRecent(nums.filter(n => !currentOwned[n]));
+
+      pushRecent(added);
       const uid = userRef.current?.id;
       if (uid) syncBatch(uid, updates).catch(e => console.warn('scan sync error', e));
-      return result;
+      return { added, dupes };
     },
   }), [owned, pushRecent, syncOne]);
 
@@ -188,7 +205,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     WC.stickers.forEach(s => {
       const c = owned[s.n] ?? 0;
       if (c > 0) distinct++;
-      if (c > 1) { dupeTotal += (c - 1); swaps.push({ s, count: c }); }
+      if (c > 1) { dupeTotal += (c - 1); swaps.push({ s, count: c - 1 }); }
     });
     return {
       total: WC.total, distinct, dupeTotal, swaps,
@@ -231,6 +248,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     },
   }), []);
 
-  const value: StoreValue = { owned, recent, user, favoriteTeam, actions, auth, stats, teamStat, groupStat };
+  const value = useMemo<StoreValue>(
+    () => ({ owned, recent, user, favoriteTeam, actions, auth, stats, teamStat, groupStat }),
+    [owned, recent, user, favoriteTeam, actions, auth, stats, teamStat, groupStat],
+  );
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }

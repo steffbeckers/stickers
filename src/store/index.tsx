@@ -43,7 +43,7 @@ interface StoreActions {
   toggle: (n: number) => void;
   add: (n: number) => void;
   remove: (n: number) => void;
-  applyScan: (nums: number[]) => { added: number[]; dupes: number[] };
+  applyScan: (nums: number[]) => { found: number[]; added: number[]; dupes: number[] };
 }
 
 interface AuthActions {
@@ -195,7 +195,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       pushRecent(added);
       const uid = userRef.current?.id;
       if (uid) syncBatch(uid, updates).catch(e => console.warn('scan sync error', e));
-      return { added, dupes };
+      return { found: nums, added, dupes };
     },
   }), [owned, pushRecent, syncOne]);
 

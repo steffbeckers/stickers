@@ -81,6 +81,7 @@ export interface StickerData {
 }
 
 export interface ScanResult {
-  team: string | null;
-  stickers: { n: number; present: boolean }[];
+  found: number[];
+  added: number[];
+  dupes: number[];
 }

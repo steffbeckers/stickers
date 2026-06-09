@@ -27,8 +27,9 @@ export function StickerArt({ s, owned }: Props) {
   const bg = s.colors[0] ?? '#888';
 
   if (s.type === 'badge') {
+    const badgeBg = s.colors[0] || '#888';
     return (
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: bg, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: badgeBg, alignItems: 'center', justifyContent: 'center' }}>
         <Crest team={{ colors: s.colors, code: s.code }} size={48} radius={11} />
       </View>
     );
@@ -56,7 +57,7 @@ export function StickerArt({ s, owned }: Props) {
         <View style={{ position: 'absolute', bottom: 6, left: 6, right: 6, flexDirection: 'row', gap: 2 }}>
           {[0,1,2,3,4].map(i => (
             <View key={i} style={{ flex: 1, maxWidth: 9 }}>
-              <PortraitGhost size={28} />
+              <PortraitGhost size={28} id={`photo-${s.n}-${i}`} />
             </View>
           ))}
         </View>

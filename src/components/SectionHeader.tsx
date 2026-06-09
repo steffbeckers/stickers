@@ -14,7 +14,7 @@ export function SectionHeader({ title, action, onAction }: Props) {
       <Text style={{ fontFamily: fonts.ui, fontSize: 14, fontWeight: '800', letterSpacing: 0.14, textTransform: 'uppercase', color: colors.ink }}>
         {title}
       </Text>
-      {action && (
+      {action && onAction && (
         <TouchableOpacity onPress={onAction}>
           <Text style={{ fontFamily: fonts.ui, fontSize: 12.5, fontWeight: '700', color: colors.pitchDeep }}>{action}</Text>
         </TouchableOpacity>

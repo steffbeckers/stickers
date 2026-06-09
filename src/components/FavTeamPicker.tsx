@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Crest } from './Crest';
 import { Icon } from './Icon';
@@ -12,7 +12,7 @@ interface Props {
 }
 
 export function FavTeamPicker({ current, onPick, onClose }: Props) {
-  const WC = getStickerData();
+  const WC = useMemo(() => getStickerData(), []);
   const [q, setQ] = useState('');
   const query = q.trim().toLowerCase();
   const teams = Object.values(WC.teams).filter(t =>
@@ -21,7 +21,12 @@ export function FavTeamPicker({ current, onPick, onClose }: Props) {
 
   return (
     <Modal visible transparent animationType="slide" onRequestClose={onClose}>
-      <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(12,16,14,0.55)' }} onPress={onClose} activeOpacity={1} />
+      <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+        <TouchableOpacity
+          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(12,16,14,0.55)' }}
+          onPress={onClose}
+          activeOpacity={1}
+        />
       <View style={{ backgroundColor: colors.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingTop: 12, maxHeight: '82%', ...shadows.md }}>
         <View style={{ width: 40, height: 5, borderRadius: 9, backgroundColor: colors.line, alignSelf: 'center', marginBottom: 12 }} />
         <View style={{ paddingHorizontal: 18, paddingBottom: 12 }}>
@@ -54,6 +59,7 @@ export function FavTeamPicker({ current, onPick, onClose }: Props) {
             );
           })}
         </ScrollView>
+      </View>
       </View>
     </Modal>
   );

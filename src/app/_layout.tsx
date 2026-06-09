@@ -20,7 +20,7 @@ function AuthGuard() {
     } else if (user && inAuth) {
       router.replace('/(tabs)');
     }
-  }, [user, segments]);
+  }, [user, segments, router]);
 
   return null;
 }

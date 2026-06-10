@@ -3,12 +3,6 @@
     "version": ">= 20.1.0",
     "appVersionSource": "remote"
   },
-  "hosting": {
-    "stickers": {
-      "projectId": "e257b0d9-070e-4e97-8cd0-397c3b9338d8",
-      "region": "us-east-1"
-    }
-  },
   "build": {
     "development": {
       "developmentClient": true,

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import Constants from 'expo-constants';
@@ -9,9 +9,13 @@ import { Icon } from '../../components/Icon';
 import { getStickerData } from '../../data/stickers';
 import { colors, fonts } from '../../constants/theme';
 
-GoogleSignin.configure({
-  webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? '',
-});
+// The native Google Sign-In SDK has no web implementation (web support is a paid
+// sponsor feature), so its methods throw on web. Only configure it on native.
+if (Platform.OS !== 'web') {
+  GoogleSignin.configure({
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? '',
+  });
+}
 
 const FAN_TEAMS = ['BRA', 'ARG', 'FRA'] as const;
 const ROTS = [-16, -4, 9];
@@ -33,6 +37,18 @@ export default function LoginScreen() {
     setBusy(true);
     setError(null);
     try {
+      if (Platform.OS === 'web') {
+        // No native SDK on web — use Supabase's redirect-based OAuth. The browser
+        // navigates to Google and back to the app, where supabase-js parses the
+        // session from the callback URL (see detectSessionInUrl in lib/supabase).
+        const { error: sbError } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: window.location.origin },
+        });
+        if (sbError) throw sbError;
+        return; // redirect in progress; this screen unloads
+      }
+
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       const idToken = userInfo.data?.idToken;
